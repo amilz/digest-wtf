@@ -20,7 +20,7 @@ const formSchema = z.object({
     message: "Name must be at least 2 characters.",
   }),
   description: z.string().optional(),
-  frequency: z.enum(["daily", "weekly"]),
+  frequency: z.enum(["hourly","daily", "weekly"]),
   active: z.boolean(),
 })
 
@@ -37,7 +37,7 @@ interface DigestFormProps {
     id?: string
     name?: string
     description?: string
-    frequency?: "daily" | "weekly"
+    frequency?: "hourly" | "daily" | "weekly"
     active?: boolean
   }
   sources?: DigestSource[]
@@ -159,6 +159,7 @@ export function DigestForm({ digest, sources = [] }: DigestFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="hourly">Hourly</SelectItem>
                       <SelectItem value="daily">Daily</SelectItem>
                       <SelectItem value="weekly">Weekly</SelectItem>
                     </SelectContent>

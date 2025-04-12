@@ -33,11 +33,19 @@ export default async function DashboardPage() {
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">All Digests</TabsTrigger>
+          <TabsTrigger value="hourly">Hourly</TabsTrigger>
           <TabsTrigger value="daily">Daily</TabsTrigger>
           <TabsTrigger value="weekly">Weekly</TabsTrigger>
         </TabsList>
         <TabsContent value="all" className="space-y-4">
           {digests && digests.length > 0 ? <DigestList digests={digests} /> : <EmptyState />}
+        </TabsContent>
+        <TabsContent value="hourly" className="space-y-4">
+          {digests && digests.filter((d) => d.frequency === "hourly").length > 0 ? (
+            <DigestList digests={digests.filter((d) => d.frequency === "hourly")} />
+          ) : (
+            <EmptyState frequency="hourly" />
+          )}
         </TabsContent>
         <TabsContent value="daily" className="space-y-4">
           {digests && digests.filter((d) => d.frequency === "daily").length > 0 ? (
