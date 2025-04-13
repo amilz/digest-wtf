@@ -44,7 +44,7 @@ export function RunDigestButton({ id }: { id: string }) {
   }
 
   return (
-    <Button onClick={handleRun} disabled={isLoading}>
+    <Button onClick={handleRun} disabled={true}>
       <RefreshCw className="mr-2 h-4 w-4" />
       {isLoading ? "Processing..." : "Run Now"}
     </Button>
