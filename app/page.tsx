@@ -19,8 +19,7 @@ export default async function Home() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl">
-            <span className="text-primary">digest</span>
-            <span className="text-muted-foreground">.wtf</span>
+            <span className="text-primary">digest<span className="text-muted-foreground">.wtf</span></span>
           </div>
           <nav className="flex items-center gap-4">
             <Link href="/auth/login">

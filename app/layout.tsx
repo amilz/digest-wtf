@@ -10,7 +10,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "digest.wtf",
   description: "Personalized web content aggregation service",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
