@@ -17,9 +17,12 @@ export function RunDigestButton({ id }: { id: string }) {
 
       const response = await fetch(`/api/digests/${id}/run`, {
         method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "x-digest-run": "true"
+        },
       })
-
-      console.log(response);
 
       if (!response.ok) {
         throw new Error("Failed to run digest")
@@ -44,7 +47,7 @@ export function RunDigestButton({ id }: { id: string }) {
   }
 
   return (
-    <Button onClick={handleRun} disabled={isLoading}>
+    <Button onClick={handleRun} disabled={true}>
       <RefreshCw className="mr-2 h-4 w-4" />
       {isLoading ? "Processing..." : "Run Now"}
     </Button>

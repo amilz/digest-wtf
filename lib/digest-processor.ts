@@ -36,6 +36,25 @@ interface DigestSummary {
   }>;
 }
 
+const SAMPLE_SUMMARY: DigestSummary = {
+  title: "Sample Digest",
+  date: new Date().toISOString(),
+  sections: [
+    {
+      title: "Sample Section",
+      items: [
+        {
+          title: "Sample Item",
+          summary: "Sample Summary",
+          url: "https://example.com",
+          source_term: "Sample Source"
+        }
+      ]
+    }
+  ]
+}
+
+
 export async function processDigest(digestId: string, runId: string, supabase: SupabaseClient) {
   try {
     // Update run status to processing
@@ -95,6 +114,111 @@ export async function processDigest(digestId: string, runId: string, supabase: S
 
     // Send email
     await sendDigestEmail(digest, user, summary)
+
+    // Update digest and run
+    await supabase
+      .from("digests")
+      .update({
+        last_run_at: new Date().toISOString(),
+      })
+      .eq("id", digestId)
+
+    await supabase
+      .from("digest_runs")
+      .update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        email_sent_at: new Date().toISOString(),
+      })
+      .eq("id", runId)
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error processing digest:", error)
+
+    // Update run status to failed
+    await supabase
+      .from("digest_runs")
+      .update({
+        status: "failed",
+        error_message: error instanceof Error ? error.message : "Unknown error",
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", runId)
+
+    throw error
+  }
+}
+
+async function getUserEmail(supabase: SupabaseClient, userId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .rpc('get_user_email_by_id', { user_id: userId });
+  
+  if (error) {
+    console.error('Error fetching user email:', error);
+    return null;
+  }
+  
+  return data;
+}
+
+
+export async function processDigestForCron(digestId: string, runId: string, supabase: SupabaseClient, user_id: string) {
+  try {
+    // Update run status to processing
+    await supabase
+      .from("digest_runs")
+      .update({
+        status: "processing",
+      })
+      .eq("id", runId)
+
+    // Get digest details with user email
+    const { data: digest, error: digestError } = await supabase
+      .from("digests")
+      .select("*")
+      .eq("id", digestId)
+      .single()
+
+    if (digestError || !digest) {
+      throw new Error(`Digest not found: ${digestError?.message}`)
+    }
+
+    const userEmail = await getUserEmail(supabase, user_id);
+      
+    if (!userEmail) {
+      throw new Error(`User email not found`)
+    }
+
+    // Get digest sources
+    const { data: sources, error: sourcesError } = await supabase
+      .from("digest_sources")
+      .select("*")
+      .eq("digest_id", digestId)
+
+    if (sourcesError) {
+      throw new Error(`Error fetching sources: ${sourcesError.message}`)
+    }
+
+    if (!sources || sources.length === 0) {
+      throw new Error("No sources found for digest")
+    }
+
+    const [openAIContent, xaiContent] = await Promise.all([
+      retrieveContentFromOpenAISearch(sources, {
+        description: digest.description,
+        frequency: digest.frequency
+      }),
+      retrieveContentFromXai(sources, {
+        description: digest.description,
+        frequency: digest.frequency
+      })
+    ])
+
+    const summary = await summarizeContentWithAnthropic([openAIContent, xaiContent])
+
+    // Send email using the digest owner's email
+    await sendDigestEmail(digest, { email: userEmail }, summary)
 
     // Update digest and run
     await supabase
@@ -451,7 +575,7 @@ async function sendDigestEmail(digest: any, user: any, summary: any) {
     Sending digest email:
     To: ${user.email}
     Subject: ${digest.name} - ${new Date().toLocaleDateString()}
-    Content: Daily digest with ${summary.sections.reduce((total: number, section: any) => total + section.items.length, 0)} items
+    Content: Daily digest with ${summary.sections?.reduce((total: number, section: any) => total + section.items.length, 0)} items
   `)
 
   // In a real implementation:

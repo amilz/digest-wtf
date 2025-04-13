@@ -5,6 +5,8 @@ import { Plus, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { DigestList } from "@/components/digest-list"
 import { createClient } from "@/lib/supabase/server"
+import { DigestLimitAlert } from "@/components/digest-limit-alert"
+import { MAX_DIGESTS } from "@/lib/constants"
 
 export default async function DashboardPage() {
   const supabase = createClient()
@@ -18,17 +20,33 @@ export default async function DashboardPage() {
     .eq("user_id", user?.id || "")
     .order("created_at", { ascending: false })
 
+  const canCreateNewDigest = (digests?.length || 0) < MAX_DIGESTS
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <Link href="/dashboard/digests/new">
-          <Button>
+        {canCreateNewDigest ? (
+          <Link href="/dashboard/digests/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Digest
+            </Button>
+          </Link>
+        ) : (
+          <Button disabled>
             <Plus className="mr-2 h-4 w-4" />
             New Digest
           </Button>
-        </Link>
+        )}
       </div>
+
+      {!canCreateNewDigest && (
+        <DigestLimitAlert 
+          currentCount={digests?.length || 0} 
+          maxCount={MAX_DIGESTS} 
+        />
+      )}
 
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>

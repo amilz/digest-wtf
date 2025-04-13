@@ -1,0 +1,1 @@
+export const MAX_DIGESTS = parseInt(process.env.MAX_DIGESTS || "2", 10) 

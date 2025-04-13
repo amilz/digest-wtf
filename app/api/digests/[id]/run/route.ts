@@ -5,6 +5,19 @@ import { processDigest } from "@/lib/digest-processor"
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
+    // Check if request is coming from the same origin
+    const origin = request.headers.get('origin')
+    const publicUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.digest.wtf"
+    if (origin && origin !== publicUrl) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    // Check for custom header to prevent direct browser access
+    const isProgrammaticRequest = request.headers.get('x-digest-run') === 'true'
+    if (!isProgrammaticRequest) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
     const cookieStore = cookies()
     const supabase = createRouteHandlerClient({ cookies: () => Promise.resolve(cookieStore) })
     const { id } = await params;
