@@ -159,7 +159,7 @@ export function DigestForm({ digest, sources = [] }: DigestFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="hourly">Hourly</SelectItem>
+                      <SelectItem value="hourly" disabled={true}>Hourly</SelectItem>
                       <SelectItem value="daily">Daily</SelectItem>
                       <SelectItem value="weekly">Weekly</SelectItem>
                     </SelectContent>
