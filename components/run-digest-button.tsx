@@ -17,9 +17,12 @@ export function RunDigestButton({ id }: { id: string }) {
 
       const response = await fetch(`/api/digests/${id}/run`, {
         method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "x-digest-run": "true"
+        },
       })
-
-      console.log(response);
 
       if (!response.ok) {
         throw new Error("Failed to run digest")
