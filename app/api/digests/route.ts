@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { sendDigestConfirmationEmail } from "@/lib/email"
 
 export async function POST(request: Request) {
   try {
@@ -53,6 +54,17 @@ export async function POST(request: Request) {
       // Delete the digest if sources failed
       await supabase.from("digests").delete().eq("id", digest.id)
       return new NextResponse("Error creating digest sources", { status: 500 })
+    }
+
+    // Send confirmation email
+    if (user.email) {
+    await sendDigestConfirmationEmail({
+      to: user.email,
+        digestName: name,
+        description,
+        frequency,
+        sourceCount: sources.length,
+      })
     }
 
     return NextResponse.json(digest)
