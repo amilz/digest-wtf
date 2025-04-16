@@ -126,6 +126,8 @@ export function DigestForm({ digest, sources = [] }: DigestFormProps) {
     setDigestSources(digestSources.filter((_, i) => i !== index))
   }
 
+  const disableSubmit = digestSources.length === 0 || isLoading;
+
   return (
     <div className="space-y-8">
       <Form {...form}>
@@ -240,7 +242,7 @@ export function DigestForm({ digest, sources = [] }: DigestFormProps) {
             <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={disableSubmit}>
               {isLoading ? "Saving..." : digest ? "Update Digest" : "Create Digest"}
             </Button>
           </div>
