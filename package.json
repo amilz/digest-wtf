@@ -44,6 +44,7 @@
     "@react-email/render": "^1.0.6",
     "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/supabase-js": "latest",
+    "@vercel/analytics": "^1.5.0",
     "ai": "^4.3.5",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
