@@ -25,7 +25,7 @@ Built using [v0](https://v0.dev/)
 - **Framework**: [Next.js](https://nextjs.org/) 15+
 - **UI Components**: [Radix UI](https://www.radix-ui.com/)
 - **Styling**: [TailwindCSS](https://tailwindcss.com/)
-- **Analytics**: [Vercel Analytics](https://vercel.com/analytics)
+- **Analytics**: [Vercel Analytics](https://vercel.com/analytics) & [Speed Insights](https://vercel.com/speed-insights)
 
 ### Backend
 - **Serverless Functions**: [Vercel Functions](https://vercel.com/docs/functions)
