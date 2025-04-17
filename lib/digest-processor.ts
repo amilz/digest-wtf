@@ -216,8 +216,11 @@ export async function processDigestForCron(digestId: string, runId: string, supa
     ])
 
     const summary = await summarizeContentWithAnthropic([openAIContent, xaiContent])
-
-    // Send email using the digest owner's email
+    
+    // don't send email if no sections found
+    if (summary.sections.length === 0) {
+      throw new Error("No sections found in summary")
+    }
     await sendDigestEmail(digest, { email: userEmail }, summary)
 
     // Update digest and run
@@ -419,7 +422,7 @@ async function retrieveContentFromXai(sources: SearchSource[], digest: { descrip
     .filter(source => source.source_type === 'x_hashtag')
     .map(source => source.source_value);
 
-  if (searchTerms.length === 0 && xHandles.length === 0) {
+  if (searchTerms.length === 0 && xHandles.length === 0 && xHashtags.length === 0) {
     return {
       content: "",
       sources: [],
@@ -596,7 +599,7 @@ async function summarizeContentWithAnthropic(responses: AISearchResponse[]): Pro
     const allContent = responses.map(r => r.content).join('\n\n');
     const allSources = responses.flatMap(r => r.sources);
 
-    if (!allContent || allSources.length === 0) {
+    if (!allContent && allSources.length === 0) {
       return {
         title: "Daily Digest",
         date: new Date().toLocaleDateString(),
